@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn & Instagram Carousel Slide Studio | 100% Client-Side BYOK Studio</title>
+  <meta name="description" content="Design and generate viral 1080x1350 LinkedIn and Instagram carousels with direct AI generation, live Canvas preview, PDF multi-page export, and PNG zip packages. 100% private in-browser tool.">
+  <meta name="keywords" content="carousel maker, linkedin carousel generator, instagram carousel slides, byok carousel studio, ai slide generator, jspdf carousel, client-side carousel designer">
+  <link rel="canonical" href="https://greentools-dev.github.io/byok-carousel-studio/">
+  <meta property="og:title" content="LinkedIn & Instagram Carousel Slide Studio">
+  <meta property="og:description" content="Create 1080x1350 multi-slide carousels with your own AI key or demo mode. Export to PDF and PNG.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://greentools-dev.github.io/byok-carousel-studio/">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- jsPDF & JSZip CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #f8fafc;
+      background-image: 
+        radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+  </style>
+
+  <!-- Structured Data JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "LinkedIn & Instagram Carousel Slide Studio",
+        "url": "https://greentools-dev.github.io/byok-carousel-studio/",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript. Requires HTML5 Canvas.",
+        "description": "Client-side BYOK carousel generator. Turns topics into 1080x1350 vertical slides with multi-page PDF and PNG zip exports.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How does BYOK (Bring Your Own Key) work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Your API key is stored strictly in your browser local storage and sent directly to Google Gemini or OpenAI via HTTPS. No server proxies or telemetry log your credentials."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What slide dimensions are exported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Slides are rendered at standard high-resolution 1080x1350 vertical pixels (4:5 aspect ratio), optimized for LinkedIn document carousels and Instagram multi-slide posts."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use this tool without an API key?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! Click 'Try Demo (No Key)' to load realistic structured slides and customize themes, fonts, and exports completely offline."
+            }
+          }
+        ]
+      }
+    ]
+  </script>
+</head>
+<body class="min-h-screen flex flex-col font-sans text-slate-800 antialiased selection:bg-brand-100 selection:text-brand-900">
+
+  <!-- Header -->
+  <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shadow-emerald-500/20">
+          <i data-lucide="presentation" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-slate-900 tracking-tight text-lg">GreenTools<span class="text-emerald-600">.dev</span></span>
+          <span class="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">Carousel Studio</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- BYOK Key Trigger -->
+        <button type="button" id="btn-open-settings" class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs">
+          <i data-lucide="key" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span id="key-status-label">API Key: Not Set</span>
+        </button>
+        <a href="https://github.com/greentools-dev/byok-carousel-studio" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-900 transition-colors p-1.5">
+          <i data-lucide="github" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error / Alert Banner -->
+  <div id="alert-banner" class="hidden max-w-7xl mx-auto px-4 mt-4">
+    <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs font-medium text-amber-800 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0"></i>
+        <span id="alert-message">Notice message</span>
+      </div>
+      <button type="button" id="btn-close-alert" class="text-amber-600 hover:text-amber-800 p-1">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 md:py-10 flex flex-col">
+    <div class="text-center max-w-2xl mx-auto mb-8">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        LinkedIn &amp; Instagram Carousel Studio
+      </h1>
+      <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+        Turn any idea into a high-engagement 1080x1350 carousel. Use your Gemini or OpenAI API key directly from your browser, or try the instant demo.
+      </p>
+    </div>
+
+    <!-- Workspace Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: Generator Form & Customization (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+        
+        <!-- Prompt & Generation Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
+              Topic &amp; Structure
+            </span>
+            <button type="button" id="btn-demo-mode" class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 underline underline-offset-2">
+              Try Demo (No Key)
+            </button>
+          </div>
+
+          <div>
+            <label for="input-topic" class="block text-xs font-semibold text-slate-700 mb-1.5">Carousel Topic or Article URL</label>
+            <textarea id="input-topic" rows="3" placeholder="e.g. 5 non-obvious principles for client-side web apps with zero cloud bills..." class="w-full p-3 text-xs font-sans rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label for="select-slides" class="block font-semibold text-slate-700 mb-1">Slide Count</label>
+              <select id="select-slides" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <option value="5" selected>5 Slides (Quick)</option>
+                <option value="7">7 Slides (Standard)</option>
+                <option value="10">10 Slides (Deep Dive)</option>
+              </select>
+            </div>
+            <div>
+              <label for="select-tone" class="block font-semibold text-slate-700 mb-1">Tone of Voice</label>
+              <select id="select-tone" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <option value="punchy" selected>Punchy &amp; Actionable</option>
+                <option value="storytelling">Storytelling &amp; Lessons</option>
+                <option value="data-driven">Analytical &amp; Crisp</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="input-handle" class="block text-xs font-semibold text-slate-700 mb-1">Brand Handle Watermark</label>
+            <input type="text" id="input-handle" value="@greentools.dev" placeholder="@yourhandle or domain.com" class="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+          </div>
+
+          <button type="button" id="btn-generate-ai" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2">
+            <i data-lucide="wand-2" class="w-4 h-4"></i>
+            <span id="label-generate">Generate Carousel Slides</span>
+          </button>
+        </div>
+
+        <!-- Theme & Styling Options Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col gap-4">
+          <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="palette" class="w-4 h-4 text-emerald-600"></i>
+            Visual Theme &amp; Typography
+          </span>
+
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <button type="button" class="theme-btn active p-2.5 rounded-xl border-2 border-emerald-600 bg-slate-900 text-white font-bold text-center" data-theme="dark">
+              Minimal Dark
+            </button>
+            <button type="button" class="theme-btn p-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-bold text-center" data-theme="light">
+              Clean Light
+            </button>
+            <button type="button" class="theme-btn p-2.5 rounded-xl border border-slate-200 bg-gradient-to-br from-emerald-900 to-slate-900 text-emerald-300 font-bold text-center" data-theme="gradient">
+              Deep Emerald
+            </button>
+          </div>
+
+          <!-- Edit Active Slide Text -->
+          <div class="mt-2 pt-4 border-t border-slate-100 flex flex-col gap-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-slate-700">Edit Slide Content:</span>
+              <span id="label-active-slide-num" class="font-mono text-emerald-700 font-bold">Slide 1 of 5</span>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Headline</label>
+              <input type="text" id="edit-slide-headline" class="w-full px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Body Text</label>
+              <textarea id="edit-slide-body" rows="3" class="w-full p-2.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive 1080x1350 Canvas Preview & Export (7 cols) -->
+      <div class="lg:col-span-7 flex flex-col gap-4 items-center">
+        
+        <div class="w-full bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col items-center">
+          
+          <!-- Scrubber & Actions Header -->
+          <div class="w-full flex items-center justify-between mb-4">
+            <div class="flex items-center gap-1.5">
+              <button type="button" id="btn-prev-slide" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors" title="Previous Slide">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <span id="slide-indicator" class="text-xs font-mono font-bold text-slate-700 px-2">1 / 5</span>
+              <button type="button" id="btn-next-slide" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors" title="Next Slide">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="flex items-center gap-2">
+              <button type="button" id="btn-export-pdf" class="px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs transition-colors flex items-center gap-1.5 shadow-2xs">
+                <i data-lucide="file-down" class="w-3.5 h-3.5 text-emerald-600"></i>
+                Export PDF
+              </button>
+              <button type="button" id="btn-export-zip" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-sm shadow-emerald-600/20">
+                <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                Download PNG Zip
+              </button>
+            </div>
+          </div>
+
+          <!-- Canvas Display Frame (1080x1350 scaled to responsive frame) -->
+          <div class="relative w-full max-w-[380px] aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-900 flex items-center justify-center">
+            <canvas id="slide-canvas" width="1080" height="1350" class="w-full h-full object-contain select-none"></canvas>
+          </div>
+
+          <!-- Slide Dots Indicator -->
+          <div class="mt-4 flex items-center gap-1.5" id="dots-container"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Sponsor Slot -->
+    <aside id="sponsor-slot" class="mt-12 p-5 rounded-2xl border border-dashed border-slate-300 bg-white text-center text-xs text-slate-500 max-w-3xl mx-auto shadow-2xs">
+      <span class="font-semibold text-slate-600 uppercase tracking-wider text-[11px] block mb-1">Sponsored</span>
+      Scale your social presence with GreenTools BYOK Design Suite. Zero backend subscriptions.
+    </aside>
+
+    <!-- FAQ & Educational Guide -->
+    <section class="mt-12 bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+        <i data-lucide="help-circle" class="w-5 h-5 text-emerald-600"></i>
+        Carousel Studio Guide &amp; Frequently Asked Questions
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-600">
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-1">How do I post a multi-page carousel on LinkedIn?</h3>
+          <p class="leading-relaxed">
+            Click "Export PDF". On LinkedIn, click the "Document" icon when creating a new post and upload the generated PDF. LinkedIn automatically renders the document as an interactive swipeable carousel slider.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-1">How do I post on Instagram?</h3>
+          <p class="leading-relaxed">
+            Click "Download PNG Zip". Unpack the zip file to receive individually numbered 1080x1350 vertical PNG images (the native 4:5 Instagram aspect ratio) ready for multi-photo gallery posts.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-1">Where is my API key stored?</h3>
+          <p class="leading-relaxed">
+            Your key never touches our servers. It is stored exclusively in your browser's private <code>localStorage</code> under <code>byok_api_key</code> and transmitted directly from your client machine to Google's or OpenAI's endpoints via TLS.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-1">Which AI models are supported?</h3>
+          <p class="leading-relaxed">
+            The studio supports Google Gemini (defaulting to <code>gemini-2.5-flash</code> for high-speed sub-second generation) and OpenAI API endpoints (including <code>gpt-4o-mini</code> or custom OpenRouter models).
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- BYOK Settings Modal -->
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-emerald-600"></i>
+          AI Provider &amp; API Key Settings
+        </h3>
+        <button type="button" id="btn-close-settings" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-500 leading-relaxed">
+        Enter your private API key. It is saved only to your local browser storage and used for direct browser-to-API requests.
+      </div>
+
+      <!-- Provider Selector -->
+      <div>
+        <label for="select-provider" class="block text-xs font-semibold text-slate-700 mb-1">AI Provider</label>
+        <select id="select-provider" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+          <option value="gemini" selected>Google Gemini (Recommended &bull; Generous Free Tier)</option>
+          <option value="openai">OpenAI / OpenRouter Compatible</option>
+        </select>
+      </div>
+
+      <!-- Model Name -->
+      <div>
+        <label for="input-model" class="block text-xs font-semibold text-slate-700 mb-1">Model Name</label>
+        <input type="text" id="input-model" value="gemini-2.5-flash" class="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </div>
+
+      <!-- Key Input -->
+      <div>
+        <label for="input-api-key" class="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
+        <div class="relative">
+          <input type="password" id="input-api-key" placeholder="AIzaSy... or sk-..." class="w-full pl-3 pr-10 py-2 text-xs font-mono rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+          <button type="button" id="btn-toggle-key-visibility" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-2 flex items-center justify-between gap-2">
+        <button type="button" id="btn-clear-key" class="px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+          Clear Key
+        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btn-cancel-settings" class="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors">
+            Cancel
+          </button>
+          <button type="button" id="btn-save-settings" class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-sm">
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white mt-12 py-8">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-800">GreenTools.dev</span>
+        <span>&bull;</span>
+        <span>100% Client-Side Web Studios</span>
+      </div>
+      <div>
+        Zero Server Storage &bull; Private Local Keys &bull; No Telemetry
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script Logic -->
+  <script>
+    lucide.createIcons();
+
+    // Default Demo Slide Deck
+    const defaultDeck = [
+      {
+        slideNumber: 1,
+        headline: "5 Principles for Zero-Server Web Apps",
+        bodyCopy: "How we shipped 30 high-utility tools without a single backend database or monthly cloud bill.",
+        swipeCta: "Swipe to learn ->"
+      },
+      {
+        slideNumber: 2,
+        headline: "1. The Browser is a Supercomputer",
+        bodyCopy: "Modern browsers feature HTML5 Canvas, Web Audio, and WebAssembly. You don't need a Node.js server to crop an image or calculate audio LUFS.",
+        swipeCta: "Swipe ->"
+      },
+      {
+        slideNumber: 3,
+        headline: "2. Privacy by Physical Impossibility",
+        bodyCopy: "If you don't collect data, you can't be breached. Processing client-side is the strongest compliance guarantee you can give users.",
+        swipeCta: "Swipe ->"
+      },
+      {
+        slideNumber: 4,
+        headline: "3. Zero Operational Overhead",
+        bodyCopy: "Static client-side assets hosted on GitHub Pages cost $0.00/mo, scale to millions of hits, and never trigger midnight server alerts.",
+        swipeCta: "Swipe ->"
+      },
+      {
+        slideNumber: 5,
+        headline: "Save This For Your Next Build",
+        bodyCopy: "Which tools are you building with pure client-side architecture? Drop a comment below and share your stack.",
+        swipeCta: "Follow for more insights"
+      }
+    ];
+
+    // State
+    let currentSlides = JSON.parse(JSON.stringify(defaultDeck));
+    let activeSlideIndex = 0;
+    let currentTheme = 'dark'; // 'dark' | 'light' | 'gradient'
+
+    // DOM Elements
+    const slideCanvas = document.getElementById('slide-canvas');
+    const ctx = slideCanvas.getContext('2d');
+    const slideIndicator = document.getElementById('slide-indicator');
+    const dotsContainer = document.getElementById('dots-container');
+    const labelActiveSlideNum = document.getElementById('label-active-slide-num');
+    const editSlideHeadline = document.getElementById('edit-slide-headline');
+    const editSlideBody = document.getElementById('edit-slide-body');
+    const inputHandle = document.getElementById('input-handle');
+
+    const btnPrevSlide = document.getElementById('btn-prev-slide');
+    const btnNextSlide = document.getElementById('btn-next-slide');
+    const btnGenerateAi = document.getElementById('btn-generate-ai');
+    const labelGenerate = document.getElementById('label-generate');
+    const btnDemoMode = document.getElementById('btn-demo-mode');
+    const btnExportPdf = document.getElementById('btn-export-pdf');
+    const btnExportZip = document.getElementById('btn-export-zip');
+
+    const alertBanner = document.getElementById('alert-banner');
+    const alertMessage = document.getElementById('alert-message');
+    const btnCloseAlert = document.getElementById('btn-close-alert');
+
+    // Settings Modal DOM
+    const btnOpenSettings = document.getElementById('btn-open-settings');
+    const settingsModal = document.getElementById('settings-modal');
+    const btnCloseSettings = document.getElementById('btn-close-settings');
+    const btnCancelSettings = document.getElementById('btn-cancel-settings');
+    const btnSaveSettings = document.getElementById('btn-save-settings');
+    const btnClearKey = document.getElementById('btn-clear-key');
+    const inputApiKey = document.getElementById('input-api-key');
+    const selectProvider = document.getElementById('select-provider');
+    const inputModel = document.getElementById('input-model');
+    const keyStatusLabel = document.getElementById('key-status-label');
+    const btnToggleKeyVisibility = document.getElementById('btn-toggle-key-visibility');
+
+    // Load API Settings from localStorage
+    function loadSettings() {
+      const savedKey = localStorage.getItem('byok_api_key') || '';
+      const savedProvider = localStorage.getItem('byok_provider') || 'gemini';
+      const savedModel = localStorage.getItem('byok_model') || (savedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gpt-4o-mini');
+
+      inputApiKey.value = savedKey;
+      selectProvider.value = savedProvider;
+      inputModel.value = savedModel;
+
+      if (savedKey) {
+        keyStatusLabel.textContent = `API Key: Connected (${savedProvider})`;
+        keyStatusLabel.parentElement.classList.replace('text-slate-700', 'text-emerald-700');
+        keyStatusLabel.parentElement.classList.add('bg-emerald-50', 'border-emerald-200');
+      } else {
+        keyStatusLabel.textContent = 'API Key: Not Set';
+      }
+    }
+
+    btnOpenSettings.addEventListener('click', () => {
+      settingsModal.classList.remove('hidden');
+    });
+
+    function closeSettings() {
+      settingsModal.classList.add('hidden');
+    }
+    btnCloseSettings.addEventListener('click', closeSettings);
+    btnCancelSettings.addEventListener('click', closeSettings);
+
+    btnSaveSettings.addEventListener('click', () => {
+      const key = inputApiKey.value.trim();
+      const prov = selectProvider.value;
+      const model = inputModel.value.trim();
+
+      if (key) {
+        localStorage.setItem('byok_api_key', key);
+        localStorage.setItem('byok_provider', prov);
+        localStorage.setItem('byok_model', model);
+      } else {
+        localStorage.removeItem('byok_api_key');
+      }
+      loadSettings();
+      closeSettings();
+    });
+
+    btnClearKey.addEventListener('click', () => {
+      localStorage.removeItem('byok_api_key');
+      inputApiKey.value = '';
+      loadSettings();
+      closeSettings();
+    });
+
+    btnToggleKeyVisibility.addEventListener('click', () => {
+      if (inputApiKey.type === 'password') {
+        inputApiKey.type = 'text';
+      } else {
+        inputApiKey.type = 'password';
+      }
+    });
+
+    selectProvider.addEventListener('change', () => {
+      if (selectProvider.value === 'gemini') {
+        inputModel.value = 'gemini-2.5-flash';
+      } else {
+        inputModel.value = 'gpt-4o-mini';
+      }
+    });
+
+    function showAlert(msg) {
+      alertMessage.textContent = msg;
+      alertBanner.classList.remove('hidden');
+    }
+    btnCloseAlert.addEventListener('click', () => {
+      alertBanner.classList.add('hidden');
+    });
+
+    // Theme Handlers
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => {
+          b.classList.remove('active', 'border-2', 'border-emerald-600');
+          b.classList.add('border-slate-200');
+        });
+        btn.classList.add('active', 'border-2', 'border-emerald-600');
+        btn.classList.remove('border-slate-200');
+        currentTheme = btn.dataset.theme;
+        renderCurrentSlide();
+      });
+    });
+
+    // Text Wrap Utility for 1080x1350 Canvas
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(' ');
+      let line = '';
+      let currentY = y;
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          context.fillText(line, x, currentY);
+          line = words[n] + ' ';
+          currentY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      context.fillText(line, x, currentY);
+      return currentY + lineHeight;
+    }
+
+    // Render Canvas Slide
+    function drawSlide(slide, targetCtx, isExport = false) {
+      const width = 1080;
+      const height = 1350;
+
+      // 1. Background Theme
+      if (currentTheme === 'dark') {
+        targetCtx.fillStyle = '#0f172a';
+        targetCtx.fillRect(0, 0, width, height);
+
+        // Subtle top glow
+        const grad = targetCtx.createRadialGradient(width / 2, 100, 50, width / 2, 100, 700);
+        grad.addColorStop(0, 'rgba(16, 185, 129, 0.12)');
+        grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        targetCtx.fillStyle = grad;
+        targetCtx.fillRect(0, 0, width, height);
+
+      } else if (currentTheme === 'light') {
+        targetCtx.fillStyle = '#ffffff';
+        targetCtx.fillRect(0, 0, width, height);
+
+        // Subtle borders
+        targetCtx.strokeStyle = '#f1f5f9';
+        targetCtx.lineWidth = 4;
+        targetCtx.strokeRect(30, 30, width - 60, height - 60);
+
+      } else if (currentTheme === 'gradient') {
+        const grad = targetCtx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, '#064e3b');
+        grad.addColorStop(0.5, '#042f2e');
+        grad.addColorStop(1, '#0f172a');
+        targetCtx.fillStyle = grad;
+        targetCtx.fillRect(0, 0, width, height);
+      }
+
+      // 2. Header Branding / Watermark
+      const handle = inputHandle.value || '@greentools.dev';
+      targetCtx.font = '600 28px "Plus Jakarta Sans", sans-serif';
+      targetCtx.fillStyle = currentTheme === 'light' ? '#059669' : '#34d399';
+      targetCtx.fillText(handle, 90, 110);
+
+      // Slide Badge Number (Top Right)
+      targetCtx.font = '700 26px "JetBrains Mono", monospace';
+      targetCtx.fillStyle = currentTheme === 'light' ? '#64748b' : '#94a3b8';
+      targetCtx.textAlign = 'right';
+      targetCtx.fillText(`${slide.slideNumber} / ${currentSlides.length}`, width - 90, 110);
+      targetCtx.textAlign = 'left';
+
+      // 3. Slide Headline
+      const isFirst = slide.slideNumber === 1;
+      const headlineY = isFirst ? 420 : 360;
+      targetCtx.font = isFirst ? '800 68px "Plus Jakarta Sans", sans-serif' : '800 58px "Plus Jakarta Sans", sans-serif';
+      targetCtx.fillStyle = currentTheme === 'light' ? '#0f172a' : '#ffffff';
+
+      const nextY = wrapText(targetCtx, slide.headline, 90, headlineY, width - 180, isFirst ? 82 : 72);
+
+      // 4. Slide Body Copy
+      targetCtx.font = '500 36px "Plus Jakarta Sans", sans-serif';
+      targetCtx.fillStyle = currentTheme === 'light' ? '#334155' : '#cbd5e1';
+      wrapText(targetCtx, slide.bodyCopy, 90, nextY + 40, width - 180, 52);
+
+      // 5. Swipe CTA / Footer
+      targetCtx.font = '700 28px "Plus Jakarta Sans", sans-serif';
+      targetCtx.fillStyle = currentTheme === 'light' ? '#059669' : '#10b981';
+      targetCtx.fillText(slide.swipeCta || 'Swipe ->', 90, height - 100);
+
+      // Bottom Progress Indicator Line
+      const progressWidth = ((width - 180) / currentSlides.length) * slide.slideNumber;
+      targetCtx.fillStyle = currentTheme === 'light' ? '#e2e8f0' : '#1e293b';
+      targetCtx.fillRect(90, height - 60, width - 180, 8);
+      targetCtx.fillStyle = currentTheme === 'light' ? '#059669' : '#10b981';
+      targetCtx.fillRect(90, height - 60, progressWidth, 8);
+    }
+
+    function renderCurrentSlide() {
+      if (currentSlides.length === 0) return;
+      const current = currentSlides[activeSlideIndex];
+      drawSlide(current, ctx);
+
+      // Sync form inputs
+      slideIndicator.textContent = `${activeSlideIndex + 1} / ${currentSlides.length}`;
+      labelActiveSlideNum.textContent = `Slide ${activeSlideIndex + 1} of ${currentSlides.length}`;
+      editSlideHeadline.value = current.headline;
+      editSlideBody.value = current.bodyCopy;
+
+      // Render Dots
+      dotsContainer.innerHTML = '';
+      currentSlides.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = `w-2.5 h-2.5 rounded-full transition-all ${idx === activeSlideIndex ? 'bg-emerald-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`;
+        dot.addEventListener('click', () => {
+          activeSlideIndex = idx;
+          renderCurrentSlide();
+        });
+        dotsContainer.appendChild(dot);
+      });
+    }
+
+    // Navigation
+    btnPrevSlide.addEventListener('click', () => {
+      if (activeSlideIndex > 0) {
+        activeSlideIndex--;
+        renderCurrentSlide();
+      }
+    });
+
+    btnNextSlide.addEventListener('click', () => {
+      if (activeSlideIndex < currentSlides.length - 1) {
+        activeSlideIndex++;
+        renderCurrentSlide();
+      }
+    });
+
+    // Real-Time Inline Slide Editor
+    editSlideHeadline.addEventListener('input', (e) => {
+      if (currentSlides[activeSlideIndex]) {
+        currentSlides[activeSlideIndex].headline = e.target.value;
+        renderCurrentSlide();
+      }
+    });
+
+    editSlideBody.addEventListener('input', (e) => {
+      if (currentSlides[activeSlideIndex]) {
+        currentSlides[activeSlideIndex].bodyCopy = e.target.value;
+        renderCurrentSlide();
+      }
+    });
+
+    inputHandle.addEventListener('input', renderCurrentSlide);
+
+    // Demo Mode Loader
+    btnDemoMode.addEventListener('click', () => {
+      currentSlides = JSON.parse(JSON.stringify(defaultDeck));
+      activeSlideIndex = 0;
+      renderCurrentSlide();
+      showAlert('Loaded pre-built 5-slide demo carousel!');
+    });
+
+    // AI Generation via Direct In-Browser Fetch (BYOK)
+    btnGenerateAi.addEventListener('click', async () => {
+      const topic = document.getElementById('input-topic').value.trim();
+      if (!topic) {
+        showAlert('Please enter a topic or problem prompt first.');
+        return;
+      }
+
+      const apiKey = localStorage.getItem('byok_api_key');
+      if (!apiKey) {
+        showAlert('No API Key detected. Please click "API Key: Not Set" to enter your key, or use "Try Demo" to preview.');
+        settingsModal.classList.remove('hidden');
+        return;
+      }
+
+      const provider = localStorage.getItem('byok_provider') || 'gemini';
+      const model = localStorage.getItem('byok_model') || (provider === 'gemini' ? 'gemini-2.5-flash' : 'gpt-4o-mini');
+      const slideCount = parseInt(document.getElementById('select-slides').value, 10);
+      const tone = document.getElementById('select-tone').value;
+
+      labelGenerate.textContent = 'Generating Slides with AI...';
+      btnGenerateAi.disabled = true;
+
+      const systemPrompt = `You are a viral LinkedIn and Instagram carousel copywriter.
+Generate a high-converting ${slideCount}-slide carousel on the topic: "${topic}" with tone "${tone}".
+Return ONLY a valid JSON array of objects with the exact schema:
+[
+  {
+    "slideNumber": 1,
+    "headline": "Bold Hook Headline (max 8 words)",
+    "bodyCopy": "Concise supporting context or teaser (max 25 words)",
+    "swipeCta": "Swipe ->"
+  }
+]
+Slide 1 must be a viral scroll-stopping hook. Last slide must be a strong Call to Action. Return zero markdown text outside the JSON.`;
+
+      try {
+        let jsonResponseText = '';
+
+        if (provider === 'gemini') {
+          // Direct call to Gemini v1beta endpoint
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: systemPrompt }] }],
+              generationConfig: { responseMimeType: 'application/json' }
+            })
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error?.message || `Gemini API returned status ${res.status}`);
+          }
+
+          const data = await res.json();
+          jsonResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        } else {
+          // Direct call to OpenAI / OpenRouter endpoint
+          const url = `https://api.openai.com/v1/chat/completions`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [{ role: 'user', content: systemPrompt }],
+              response_format: { type: 'json_object' }
+            })
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error?.message || `OpenAI API returned status ${res.status}`);
+          }
+
+          const data = await res.json();
+          jsonResponseText = data.choices?.[0]?.message?.content;
+        }
+
+        // Clean & Parse JSON
+        let parsed = JSON.parse(jsonResponseText);
+        if (!Array.isArray(parsed) && parsed.slides) parsed = parsed.slides;
+
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          currentSlides = parsed;
+          activeSlideIndex = 0;
+          renderCurrentSlide();
+          showAlert(`Successfully generated ${parsed.length} slides with ${model}!`);
+        } else {
+          throw new Error('AI returned an unexpected response structure.');
+        }
+
+      } catch (err) {
+        console.error(err);
+        showAlert(`Generation failed: ${err.message}`);
+      } finally {
+        labelGenerate.textContent = 'Generate Carousel Slides';
+        btnGenerateAi.disabled = false;
+      }
+    });
+
+    // Multi-Page PDF Export via jsPDF
+    btnExportPdf.addEventListener('click', async () => {
+      const { jsPDF } = window.jspdf;
+      // 1080x1350 pt orientation portrait
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: [1080, 1350]
+      });
+
+      const offscreenCanvas = document.createElement('canvas');
+      offscreenCanvas.width = 1080;
+      offscreenCanvas.height = 1350;
+      const offCtx = offscreenCanvas.getContext('2d');
+
+      for (let i = 0; i < currentSlides.length; i++) {
+        if (i > 0) pdf.addPage([1080, 1350], 'portrait');
+        drawSlide(currentSlides[i], offCtx, true);
+        const imgData = offscreenCanvas.toDataURL('image/jpeg', 0.95);
+        pdf.addImage(imgData, 'JPEG', 0, 0, 1080, 1350);
+      }
+
+      pdf.save('linkedin-carousel.pdf');
+    });
+
+    // PNG Zip Export via JSZip
+    btnExportZip.addEventListener('click', async () => {
+      const zip = new JSZip();
+      const offscreenCanvas = document.createElement('canvas');
+      offscreenCanvas.width = 1080;
+      offscreenCanvas.height = 1350;
+      const offCtx = offscreenCanvas.getContext('2d');
+
+      for (let i = 0; i < currentSlides.length; i++) {
+        drawSlide(currentSlides[i], offCtx, true);
+        const dataUrl = offscreenCanvas.toDataURL('image/png');
+        const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '');
+        zip.file(`slide_${i + 1}.png`, base64Data, { base64: true });
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = 'carousel-slides.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+
+    // Initialization
+    loadSettings();
+    renderCurrentSlide();
+  </script>
+</body>
+</html>
